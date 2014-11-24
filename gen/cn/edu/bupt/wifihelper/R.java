@@ -1668,11 +1668,12 @@ containing a value of this type.
         public static final int icon=0x7f050026;
         public static final int ifRoom=0x7f05000c;
         public static final int image=0x7f050023;
-        public static final int ip_text=0x7f050043;
-        public static final int item=0x7f050042;
+        public static final int ip_text=0x7f050044;
+        public static final int item=0x7f050043;
         public static final int listMode=0x7f050002;
         public static final int list_item=0x7f050025;
-        public static final int listview=0x7f050041;
+        public static final int listview=0x7f050042;
+        public static final int login_btn=0x7f050041;
         public static final int middle=0x7f050013;
         public static final int never=0x7f05000b;
         public static final int none=0x7f050004;
@@ -1815,10 +1816,13 @@ containing a value of this type.
         /**  Content description for the Toolbar icon used to collapse an expanded action mode. [CHAR LIMIT=NONE] 
          */
         public static final int abc_toolbar_collapse_description=0x7f0a0004;
+        public static final int account_hint=0x7f0a0015;
         public static final int action_settings=0x7f0a0012;
         public static final int app_name=0x7f0a0010;
         public static final int force_offline_text=0x7f0a0013;
         public static final int hello_world=0x7f0a0011;
+        public static final int login_text=0x7f0a0014;
+        public static final int password_hint=0x7f0a0016;
     }
     public static final class style {
         /** 
