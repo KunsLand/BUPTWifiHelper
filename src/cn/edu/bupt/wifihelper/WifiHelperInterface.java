@@ -4,5 +4,5 @@ import java.util.ArrayList;
 
 public interface WifiHelperInterface{
 	public void processIpInUse(ArrayList<String> ipList);
-	public void processHistoryInfo(); // not available now
+	public void processForceOfflineResponse(String message);
 }

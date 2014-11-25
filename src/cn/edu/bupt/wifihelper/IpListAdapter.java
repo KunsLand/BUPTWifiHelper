@@ -3,8 +3,10 @@ package cn.edu.bupt.wifihelper;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -29,8 +31,13 @@ public class IpListAdapter extends ArrayAdapter<String>
 		helper.setProcessor(this);
 	}
 	
-	public void loginGW(String account, String password){
-		helper.loginGW(account, password);
+	public void loginGW(final String account, final String password){
+		context.runOnUiThread(new Runnable(){
+			@Override
+			public void run() {
+				helper.loginGW(account, password);
+			}
+		});
 	}
 
 	@Override
@@ -43,16 +50,25 @@ public class IpListAdapter extends ArrayAdapter<String>
 			ViewHolder viewHolder = new ViewHolder();
 			viewHolder.textView = (TextView)
 					convertView.findViewById(textViewResourceId);
+			viewHolder.textView.setText(ipList.get(position));
 			convertView.setTag(viewHolder);
 		}
 		ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-		viewHolder.textView.setText(ipList.get(position));
-		viewHolder.textView.setOnClickListener(new View.OnClickListener() {
+		viewHolder.textView.setOnTouchListener(new View.OnTouchListener() {
 			@Override
-			public void onClick(View v) {
-				helper.forceIpOffLine(ipList.remove(position));
-				IpListAdapter.this.notifyDataSetChanged();
-				helper.checkIps();
+			public boolean onTouch(View v, MotionEvent event) {
+				switch(event.getAction()){
+				case MotionEvent.ACTION_DOWN:
+					break;
+				case MotionEvent.ACTION_UP:
+					helper.forceIpOffLine(ipList.remove(position));
+					IpListAdapter.this.notifyDataSetChanged();
+					v.performClick();
+					break;
+				default:
+					break;
+				}
+				return true;
 			}
 		});
 		return convertView;
@@ -69,13 +85,24 @@ public class IpListAdapter extends ArrayAdapter<String>
 				IpListAdapter.this.notifyDataSetChanged();
 			}});
 	}
-
+	
 	@Override
-	public void processHistoryInfo() {
+	public void processForceOfflineResponse(String message) {
+		new AlertDialog.Builder(context)
+			.setPositiveButton(message, null)
+			.show();
+		context.runOnUiThread(new Runnable(){
+			@Override
+			public void run() {
+				IpListAdapter.this.notifyDataSetChanged();
+			}});
 	}
+	
 	
 	static class ViewHolder{
 		TextView textView;
 	}
+
+
 
 }
