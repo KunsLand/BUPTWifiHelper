@@ -104,11 +104,8 @@ public class IpListAdapter extends ArrayAdapter<String>
 	}
 
 	@Override
-	public void processIpListEmpty() {
-	}
-
-	@Override
-	public void processPageLoadingProgress(int newProgress) {
+	public void processLoginGWProgress(int newProgress) {
+		Log.v("IpListAdapter", "Logining: " + newProgress + "%");
 	}
 
 	@Override
@@ -119,6 +116,14 @@ public class IpListAdapter extends ArrayAdapter<String>
 			.show();
 	}
 
+	@Override
+	public void processIpFetching(int newProgress) {
+		Log.v("IpListAdapter", "IpFeteching: " + newProgress + "%");
+	}
 
+	@Override
+	public void processIndexPageLoading(int newProgress) {
+		Log.v("IpListAdapter", "IndexPageLoading: " + newProgress + "%");
+	}
 
 }

@@ -22,13 +22,12 @@ public class AndroidWifiHelper {
 	private String account;
 	private String password;
 	private WifiHelperInterface processor;
+	private int taskid;
 	
 	public AndroidWifiHelper(Activity activity){
 		myWebView = new WebView(activity);
 		WebSettings webSettings = myWebView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
-//		webSettings.setBlockNetworkImage(true);
-//		webSettings.setBlockNetworkLoads(true);
 		webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
 		myWebView.addJavascriptInterface(this, "HTML_OUT");
 		myWebView.setVisibility(View.INVISIBLE);
@@ -53,8 +52,13 @@ public class AndroidWifiHelper {
 
 			@Override
 			public void onProgressChanged(WebView view, int newProgress) {
-				if(processor!=null)
-					processor.processPageLoadingProgress(newProgress);
+				if(processor==null) return;
+				if(taskid==0)
+					processor.processIndexPageLoading(newProgress);
+				if(taskid==1)
+					processor.processLoginGWProgress(newProgress);
+				else if(taskid==2)
+					processor.processIpFetching(newProgress);
 			}
 
 			@Override
@@ -97,6 +101,7 @@ public class AndroidWifiHelper {
 	
 	public void loginGW(String account, String password){
         Log.v("AndroidWifiHelper", "Load login page.");
+        taskid = 0;
 		myWebView.loadUrl("http://gwself.bupt.edu.cn/nav_login");
         Log.v("AndroidWifiHelper", "Set account and password.");
 		this.account = account;
@@ -110,6 +115,7 @@ public class AndroidWifiHelper {
 
     private void submitForm(){
         Log.v("AndroidWifiHelper", "Submit form to login.");
+        taskid = 1;
         myWebView
                 .loadUrl("javascript:(function(){"
                         + "document.getElementById('account').value='" + account + "';"
