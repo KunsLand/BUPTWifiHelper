@@ -64,7 +64,7 @@ public class AndroidWifiHelper {
 			@Override
 			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
 				Log.v("AndroidWifiHelper", "JavaScript Console: " + consoleMessage.message());
-				return true;
+				return false;
 			}
 			
 		});
