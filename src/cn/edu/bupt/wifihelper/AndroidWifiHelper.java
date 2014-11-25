@@ -37,8 +37,8 @@ public class AndroidWifiHelper {
 				Log.v("AndroidWifiHelper", "Load complete: " + view.getUrl());
 				if (url.endsWith("/nav_login")) submitForm();
 				else if (url.endsWith("/LoginAction.action")) {
-					myWebView.loadUrl("javascript:window.HTML_OUT.checkLoginStatus(document.getElementById('logout'))");
-				} else if (url.endsWith("/nav_offLine")) {
+					myWebView.loadUrl("javascript:(function(){alert(document.getElementById('logout')==null);})()");
+				} else if (url.contains("/nav_offLine")) {
                     Log.v("AndroidWifiHelper", "Try to abstract online IPs.");
 					myWebView.loadUrl("javascript:window.HTML_OUT.processHTML(" +
 							"'<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'" +
@@ -54,13 +54,20 @@ public class AndroidWifiHelper {
 					JsResult result) {
 				Log.i("AndroidWifiHelper", "JsAlert: " + message);
 				result.confirm();
-				if(!message.contains("成功")&&!message.contains("失败")) {
+				if(message.equals("true")){
+					if(processor!=null)
+						processor.processWifiHelperStatusChanged(
+								WifiHelperInterface.Status.LOGIN_FAILED);
+				}
+				else if(message.equals("false")){
+					checkOnlineIps();
+				}
+				else if(!message.contains("成功")&&!message.contains("失败")) {
 					if(processor!=null)
 						processor.processWifiHelperStatusChanged(
 								WifiHelperInterface.Status.UNKNOWN_ERROR);
-					return true;
 				}
-				if(processor!=null)
+				else if(processor!=null)
 					processor.processForceOfflineResponse(message.contains("成功"));
 				return true;
 			}
@@ -69,22 +76,17 @@ public class AndroidWifiHelper {
 			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
 				String msg = consoleMessage.message();
 				Log.v("AndroidWifiHelper", "Console message: " + msg);
-				if(processor!=null && msg.contains("TypeError"))
+				if(processor==null) return true;
+				if(msg.contains("TypeError"))
 					processor.processWifiHelperStatusChanged(
 							WifiHelperInterface.Status.LOGIN_FAILED);
+				else
+					processor.processWifiHelperStatusChanged(
+							WifiHelperInterface.Status.UNKNOWN_ERROR);
+				
 				return true;
 			}
 		});
-	}
-
-	@JavascriptInterface
-	public void checkLoginStatus(String str){
-		if(str==null||str.equals("null")){
-			if(processor!=null)
-				processor.processWifiHelperStatusChanged(
-						WifiHelperInterface.Status.LOGIN_FAILED);
-		}
-		else checkOnlineIps();
 	}
 	
 	@JavascriptInterface
@@ -121,7 +123,7 @@ public class AndroidWifiHelper {
         if(processor!=null)
         	processor.processWifiHelperStatusChanged(
         			WifiHelperInterface.Status.TRY_TO_FETCH_IP);
-		myWebView.loadUrl("http://gwself.bupt.edu.cn/nav_offLine");
+        myWebView.loadUrl("http://gwself.bupt.edu.cn/nav_offLine");
 	}
 
     private void submitForm(){
