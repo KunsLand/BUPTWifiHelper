@@ -9,6 +9,7 @@ import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.webkit.ConsoleMessage;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
@@ -55,7 +56,7 @@ public class AndroidWifiHelper {
 				result.confirm();
 				if(!message.contains("强制离线")){
 					processor.processUnknownError(message);
-					myWebView.clearCache(true);
+					CookieManager.getInstance().removeAllCookie();
 				}
 				else
 					processor.processForceOfflineResponse(message.contains("成功"));
@@ -72,7 +73,7 @@ public class AndroidWifiHelper {
 							WifiHelperInterface.Status.LOGIN_FAILED);
 				else{
 					processor.processUnknownError(msg);
-					myWebView.clearCache(true);
+					CookieManager.getInstance().removeAllCookie();
 				}
 				
 				return true;
