@@ -53,8 +53,10 @@ public class AndroidWifiHelper {
 				if(processor == null) return true;
 				Log.i("AndroidWifiHelper", "JsAlert: " + message);
 				result.confirm();
-				if(!message.contains("强制离线"))
+				if(!message.contains("强制离线")){
 					processor.processUnknownError(message);
+					myWebView.clearCache(true);
+				}
 				else
 					processor.processForceOfflineResponse(message.contains("成功"));
 				return true;
@@ -68,8 +70,10 @@ public class AndroidWifiHelper {
 				if(msg.contains("TypeError"))
 					processor.processWifiHelperStatusChanged(
 							WifiHelperInterface.Status.LOGIN_FAILED);
-				else
+				else{
 					processor.processUnknownError(msg);
+					myWebView.clearCache(true);
+				}
 				
 				return true;
 			}
