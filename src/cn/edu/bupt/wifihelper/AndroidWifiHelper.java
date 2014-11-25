@@ -37,7 +37,7 @@ public class AndroidWifiHelper {
 				Log.v("AndroidWifiHelper", "Load complete: " + view.getUrl());
 				if (url.endsWith("/nav_login")) submitForm();
 				else if (url.endsWith("/LoginAction.action")) {
-					checkIps();
+					myWebView.loadUrl("javascript:window.HTML_OUT.checkLoginStatus(document.getElementById('logout'))");
 				} else if (url.endsWith("/nav_offLine")) {
                     Log.v("AndroidWifiHelper", "Try to abstract online IPs.");
 					myWebView.loadUrl("javascript:window.HTML_OUT.processHTML(" +
@@ -53,6 +53,13 @@ public class AndroidWifiHelper {
 			public boolean onJsAlert(WebView view, String url, String message,
 					JsResult result) {
 				Log.i("AndroidWifiHelper", "JsAlert: " + message);
+				result.confirm();
+				if(!message.contains("成功")&&!message.contains("失败")) {
+					if(processor!=null)
+						processor.processWifiHelperStatusChanged(
+								WifiHelperInterface.Status.UNKNOWN_ERROR);
+					return true;
+				}
 				if(processor!=null)
 					processor.processForceOfflineResponse(message.contains("成功"));
 				return true;
@@ -70,6 +77,16 @@ public class AndroidWifiHelper {
 		});
 	}
 
+	@JavascriptInterface
+	public void checkLoginStatus(String str){
+		if(str==null||str.equals("null")){
+			if(processor!=null)
+				processor.processWifiHelperStatusChanged(
+						WifiHelperInterface.Status.LOGIN_FAILED);
+		}
+		else checkOnlineIps();
+	}
+	
 	@JavascriptInterface
 	public void processHTML(String html){
 		String IP_ADDRESS_PATTERN =
@@ -99,7 +116,7 @@ public class AndroidWifiHelper {
 		this.password = password;
 	}
 	
-	public void checkIps(){
+	public void checkOnlineIps(){
         Log.v("AndroidWifiHelper", "Try to load online-IPs page.");
         if(processor!=null)
         	processor.processWifiHelperStatusChanged(
@@ -135,7 +152,6 @@ public class AndroidWifiHelper {
 				+ ip + "')>-1)"
 				+ "els[i].dispatchEvent(evt);" + "}"
 				+ "})()");
-		
 	}
 	
 }
