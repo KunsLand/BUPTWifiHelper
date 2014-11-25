@@ -93,7 +93,7 @@ public class IpListAdapter extends ArrayAdapter<String>
 	@Override
 	public void processForceOfflineResponse(boolean succeed) {
 		new AlertDialog.Builder(context)
-		.setMessage(succeed?"Ç¿ÖÆÀëÏß³É¹¦£¡":"Ç¿ÖÆÀëÏßÊ§°Ü£¡")
+		.setMessage(succeed?"å¼ºåˆ¶ç¦»çº¿æˆåŠŸï¼":"å¼ºåˆ¶ç¦»çº¿å¤±è´¥ï¼")
 		.setPositiveButton("OK", null)
 		.show();
 		context.runOnUiThread(new Runnable(){
@@ -106,5 +106,9 @@ public class IpListAdapter extends ArrayAdapter<String>
 	@Override
 	public void processWifiHelperStatusChanged(Status status) {
 		Log.v("IpListAdapter", status.name());
+		if(!context.isDestroyed())
+			new AlertDialog.Builder(context)
+				.setMessage(status.name())
+				.setPositiveButton("OK", null).show();
 	}
 }

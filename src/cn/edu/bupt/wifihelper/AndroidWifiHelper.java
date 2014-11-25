@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.webkit.ConsoleMessage;
@@ -23,11 +23,11 @@ public class AndroidWifiHelper {
 	private String password;
 	private WifiHelperInterface processor;
 	
-	public AndroidWifiHelper(Activity activity){
-		myWebView = new WebView(activity);
+	public AndroidWifiHelper(Context context){
+		myWebView = new WebView(context);
 		WebSettings webSettings = myWebView.getSettings();
+		webSettings.setSaveFormData(false);
 		webSettings.setJavaScriptEnabled(true);
-		webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
 		myWebView.addJavascriptInterface(this, "HTML_OUT");
 		myWebView.setVisibility(View.INVISIBLE);
 		myWebView.setWebViewClient(new WebViewClient(){
@@ -37,12 +37,10 @@ public class AndroidWifiHelper {
 				Log.v("AndroidWifiHelper", "Load complete: " + view.getUrl());
 				if (url.endsWith("/nav_login")) submitForm();
 				else if (url.endsWith("/LoginAction.action")) {
-					myWebView.loadUrl("javascript:(function(){alert(document.getElementById('logout')==null);})()");
-				} else if (url.contains("/nav_offLine")) {
+					checkOnlineIps();
+				} else if (url.endsWith("/nav_offLine")) {
                     Log.v("AndroidWifiHelper", "Try to abstract online IPs.");
-					myWebView.loadUrl("javascript:window.HTML_OUT.processHTML(" +
-							"'<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'" +
-							")");
+					myWebView.loadUrl("javascript:window.HTML_OUT.processHTML(document.documentElement.outerHTML)");
 				}
 			}
 			
@@ -52,31 +50,22 @@ public class AndroidWifiHelper {
 			@Override
 			public boolean onJsAlert(WebView view, String url, String message,
 					JsResult result) {
+				if(processor == null) return true;
 				Log.i("AndroidWifiHelper", "JsAlert: " + message);
 				result.confirm();
-				if(message.equals("true")){
-					if(processor!=null)
-						processor.processWifiHelperStatusChanged(
-								WifiHelperInterface.Status.LOGIN_FAILED);
-				}
-				else if(message.equals("false")){
-					checkOnlineIps();
-				}
-				else if(!message.contains("≥…π¶")&&!message.contains(" ß∞‹")) {
-					if(processor!=null)
-						processor.processWifiHelperStatusChanged(
-								WifiHelperInterface.Status.UNKNOWN_ERROR);
-				}
-				else if(processor!=null)
-					processor.processForceOfflineResponse(message.contains("≥…π¶"));
+				if(!message.contains("Âº∫Âà∂Á¶ªÁ∫ø"))
+					processor.processWifiHelperStatusChanged(
+							WifiHelperInterface.Status.UNKNOWN_ERROR);
+				else
+					processor.processForceOfflineResponse(message.contains("ÊàêÂäü"));
 				return true;
 			}
 
 			@Override
 			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+				if(processor==null) return true;
 				String msg = consoleMessage.message();
 				Log.v("AndroidWifiHelper", "Console message: " + msg);
-				if(processor==null) return true;
 				if(msg.contains("TypeError"))
 					processor.processWifiHelperStatusChanged(
 							WifiHelperInterface.Status.LOGIN_FAILED);
