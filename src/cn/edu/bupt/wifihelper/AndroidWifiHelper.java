@@ -15,6 +15,7 @@ import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 @SuppressLint({ "JavascriptInterface", "SetJavaScriptEnabled" })
 public class AndroidWifiHelper {
@@ -28,20 +29,15 @@ public class AndroidWifiHelper {
 		WebSettings webSettings = myWebView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
 		webSettings.setBlockNetworkImage(true);
-//		webSettings.setBlockNetworkLoads(true);
+		webSettings.setBlockNetworkLoads(true);
 		webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
 		myWebView.addJavascriptInterface(this, "HTML_OUT");
 		myWebView.setVisibility(View.INVISIBLE);
-		myWebView.setWebChromeClient(new WebChromeClient(){
+		myWebView.setWebViewClient(new WebViewClient(){
 
 			@Override
-			public void onProgressChanged(WebView view, int newProgress) {
-				if(processor!=null)
-					processor.processPageLoadingProgress(newProgress);
-				if(newProgress<100) return;
+			public void onPageFinished(WebView view, String url) {
 				Log.v("AndroidWifiHelper", "Load complete: " + view.getUrl());
-				String url = view.getUrl();
-				
 				if (url.endsWith("/nav_login")) submitForm();
 				else if (url.endsWith("/LoginAction.action")) {
 					checkIps();
@@ -52,14 +48,28 @@ public class AndroidWifiHelper {
 							")");
 				}
 			}
+			
+		});
+		myWebView.setWebChromeClient(new WebChromeClient(){
+
+			@Override
+			public void onProgressChanged(WebView view, int newProgress) {
+				if(processor!=null)
+					processor.processPageLoadingProgress(newProgress);
+			}
 
 			@Override
 			public boolean onJsAlert(WebView view, String url, String message,
 					JsResult result) {
 				Log.i("AndroidWifiHelper", "JsAlert: " + message);
-				new AlertDialog.Builder(view.getContext());
 				if(processor!=null)
 					processor.processForceOfflineResponse(message);
+				return true;
+			}
+
+			@Override
+			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+				Log.v("AndroidWifiHelper", "Console message: " + consoleMessage.message());
 				return true;
 			}
 		});
