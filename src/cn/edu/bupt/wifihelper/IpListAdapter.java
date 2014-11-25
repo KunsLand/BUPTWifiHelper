@@ -91,9 +91,9 @@ public class IpListAdapter extends ArrayAdapter<String>
 	}
 	
 	@Override
-	public void processForceOfflineResponse(String message) {
+	public void processForceOfflineResponse(boolean succeed) {
 		new AlertDialog.Builder(context)
-		.setMessage(message)
+		.setMessage(succeed?"强制离线成功！":"强制离线失败！")
 		.setPositiveButton("OK", null)
 		.show();
 		context.runOnUiThread(new Runnable(){
@@ -104,26 +104,7 @@ public class IpListAdapter extends ArrayAdapter<String>
 	}
 
 	@Override
-	public void processLoginGWProgress(int newProgress) {
-		Log.v("IpListAdapter", "Logining: " + newProgress + "%");
+	public void processWifiHelperStatusChanged(Status status) {
+		Log.v("IpListAdapter", status.name());
 	}
-
-	@Override
-	public void processLoginGWFailed() {
-		new AlertDialog.Builder(context)
-			.setMessage("Login failed.")
-			.setPositiveButton("OK", null)
-			.show();
-	}
-
-	@Override
-	public void processIpFetching(int newProgress) {
-		Log.v("IpListAdapter", "IpFeteching: " + newProgress + "%");
-	}
-
-	@Override
-	public void processIndexPageLoading(int newProgress) {
-		Log.v("IpListAdapter", "IndexPageLoading: " + newProgress + "%");
-	}
-
 }

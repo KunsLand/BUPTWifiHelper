@@ -22,7 +22,6 @@ public class AndroidWifiHelper {
 	private String account;
 	private String password;
 	private WifiHelperInterface processor;
-	private int taskid = -1;
 	
 	public AndroidWifiHelper(Activity activity){
 		myWebView = new WebView(activity);
@@ -51,22 +50,11 @@ public class AndroidWifiHelper {
 		myWebView.setWebChromeClient(new WebChromeClient(){
 
 			@Override
-			public void onProgressChanged(WebView view, int newProgress) {
-				if(processor==null) return;
-				if(taskid==0)
-					processor.processIndexPageLoading(newProgress);
-				if(taskid==1)
-					processor.processLoginGWProgress(newProgress);
-				else if(taskid==2)
-					processor.processIpFetching(newProgress);
-			}
-
-			@Override
 			public boolean onJsAlert(WebView view, String url, String message,
 					JsResult result) {
 				Log.i("AndroidWifiHelper", "JsAlert: " + message);
 				if(processor!=null)
-					processor.processForceOfflineResponse(message);
+					processor.processForceOfflineResponse(message.contains("³É¹¦"));
 				return true;
 			}
 
@@ -75,7 +63,8 @@ public class AndroidWifiHelper {
 				String msg = consoleMessage.message();
 				Log.v("AndroidWifiHelper", "Console message: " + msg);
 				if(processor!=null && msg.contains("TypeError"))
-					processor.processLoginGWFailed();
+					processor.processWifiHelperStatusChanged(
+							WifiHelperInterface.Status.LOGIN_FAILED);
 				return true;
 			}
 		});
@@ -83,7 +72,6 @@ public class AndroidWifiHelper {
 
 	@JavascriptInterface
 	public void processHTML(String html){
-		taskid = -1;
 		String IP_ADDRESS_PATTERN =
 		        "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
 		Pattern pattern = Pattern.compile(IP_ADDRESS_PATTERN);
@@ -102,7 +90,9 @@ public class AndroidWifiHelper {
 	
 	public void loginGW(String account, String password){
         Log.v("AndroidWifiHelper", "Load login page.");
-        taskid = 0;
+        if(processor!=null)
+        	processor.processWifiHelperStatusChanged(
+        			WifiHelperInterface.Status.LOADING_INDEX_PAGE);
 		myWebView.loadUrl("http://gwself.bupt.edu.cn/nav_login");
         Log.v("AndroidWifiHelper", "Set account and password.");
 		this.account = account;
@@ -111,13 +101,17 @@ public class AndroidWifiHelper {
 	
 	public void checkIps(){
         Log.v("AndroidWifiHelper", "Try to load online-IPs page.");
-        taskid = 2;
+        if(processor!=null)
+        	processor.processWifiHelperStatusChanged(
+        			WifiHelperInterface.Status.TRY_TO_FETCH_IP);
 		myWebView.loadUrl("http://gwself.bupt.edu.cn/nav_offLine");
 	}
 
     private void submitForm(){
         Log.v("AndroidWifiHelper", "Submit form to login.");
-        taskid = 1;
+        if(processor!=null)
+        	processor.processWifiHelperStatusChanged(
+        			WifiHelperInterface.Status.TRY_TO_LOGIN);
         myWebView
                 .loadUrl("javascript:(function(){"
                         + "document.getElementById('account').value='" + account + "';"
