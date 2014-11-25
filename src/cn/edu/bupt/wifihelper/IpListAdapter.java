@@ -111,4 +111,12 @@ public class IpListAdapter extends ArrayAdapter<String>
 				.setMessage(status.name())
 				.setPositiveButton("OK", null).show();
 	}
+
+	@Override
+	public void processUnknownError(String message) {
+		if(!context.isDestroyed())
+			new AlertDialog.Builder(context)
+				.setMessage(message)
+				.setPositiveButton("OK", null).show();
+	}
 }

@@ -54,8 +54,7 @@ public class AndroidWifiHelper {
 				Log.i("AndroidWifiHelper", "JsAlert: " + message);
 				result.confirm();
 				if(!message.contains("强制离线"))
-					processor.processWifiHelperStatusChanged(
-							WifiHelperInterface.Status.UNKNOWN_ERROR);
+					processor.processUnknownError(message);
 				else
 					processor.processForceOfflineResponse(message.contains("成功"));
 				return true;
@@ -70,8 +69,7 @@ public class AndroidWifiHelper {
 					processor.processWifiHelperStatusChanged(
 							WifiHelperInterface.Status.LOGIN_FAILED);
 				else
-					processor.processWifiHelperStatusChanged(
-							WifiHelperInterface.Status.UNKNOWN_ERROR);
+					processor.processUnknownError(msg);
 				
 				return true;
 			}
