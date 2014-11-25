@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.webkit.ConsoleMessage;
@@ -28,8 +27,8 @@ public class AndroidWifiHelper {
 		myWebView = new WebView(activity);
 		WebSettings webSettings = myWebView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
-		webSettings.setBlockNetworkImage(true);
-		webSettings.setBlockNetworkLoads(true);
+//		webSettings.setBlockNetworkImage(true);
+//		webSettings.setBlockNetworkLoads(true);
 		webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
 		myWebView.addJavascriptInterface(this, "HTML_OUT");
 		myWebView.setVisibility(View.INVISIBLE);
@@ -69,7 +68,10 @@ public class AndroidWifiHelper {
 
 			@Override
 			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-				Log.v("AndroidWifiHelper", "Console message: " + consoleMessage.message());
+				String msg = consoleMessage.message();
+				Log.v("AndroidWifiHelper", "Console message: " + msg);
+				if(processor!=null && msg.contains("TypeError"))
+					processor.processLoginGWFailed();
 				return true;
 			}
 		});
@@ -94,10 +96,11 @@ public class AndroidWifiHelper {
 	}
 	
 	public void loginGW(String account, String password){
-        Log.v("AndroidWifiHelper", "Set account and password, and load login page.");
+        Log.v("AndroidWifiHelper", "Load login page.");
+		myWebView.loadUrl("http://gwself.bupt.edu.cn/nav_login");
+        Log.v("AndroidWifiHelper", "Set account and password.");
 		this.account = account;
 		this.password = password;
-		myWebView.loadUrl("http://gwself.bupt.edu.cn/nav_login");
 	}
 	
 	public void checkIps(){
@@ -106,7 +109,7 @@ public class AndroidWifiHelper {
 	}
 
     private void submitForm(){
-        Log.v("AndroidWifiHelper", "Submit form");
+        Log.v("AndroidWifiHelper", "Submit form to login.");
         myWebView
                 .loadUrl("javascript:(function(){"
                         + "document.getElementById('account').value='" + account + "';"

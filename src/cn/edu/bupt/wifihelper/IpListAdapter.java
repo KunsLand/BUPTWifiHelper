@@ -3,6 +3,7 @@ package cn.edu.bupt.wifihelper;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -91,6 +92,10 @@ public class IpListAdapter extends ArrayAdapter<String>
 	
 	@Override
 	public void processForceOfflineResponse(String message) {
+		new AlertDialog.Builder(context)
+		.setMessage(message)
+		.setPositiveButton("OK", null)
+		.show();
 		context.runOnUiThread(new Runnable(){
 			@Override
 			public void run() {
@@ -108,8 +113,10 @@ public class IpListAdapter extends ArrayAdapter<String>
 
 	@Override
 	public void processLoginGWFailed() {
-		// TODO Auto-generated method stub
-		
+		new AlertDialog.Builder(context)
+			.setMessage("Login failed.")
+			.setPositiveButton("OK", null)
+			.show();
 	}
 
 
