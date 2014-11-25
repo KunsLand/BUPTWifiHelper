@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.webkit.ConsoleMessage;
@@ -56,17 +57,11 @@ public class AndroidWifiHelper {
 			public boolean onJsAlert(WebView view, String url, String message,
 					JsResult result) {
 				Log.i("AndroidWifiHelper", "JsAlert: " + message);
+				new AlertDialog.Builder(view.getContext());
 				if(processor!=null)
 					processor.processForceOfflineResponse(message);
 				return true;
 			}
-
-			@Override
-			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-				Log.v("AndroidWifiHelper", "JavaScript Console: " + consoleMessage.message());
-				return false;
-			}
-			
 		});
 	}
 
