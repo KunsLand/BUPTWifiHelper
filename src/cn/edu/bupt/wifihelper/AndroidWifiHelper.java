@@ -28,31 +28,12 @@ public class AndroidWifiHelper {
 		webSettings.setJavaScriptEnabled(true);
 		webSettings.setBlockNetworkImage(true);
 //		webSettings.setBlockNetworkLoads(true);
-		//webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+		webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
 		myWebView.addJavascriptInterface(this, "HTML_OUT");
 		myWebView.setVisibility(View.INVISIBLE);
-		myWebView.setWebViewClient(new WebViewClient() {
-			@Override
-			public void onPageFinished(WebView view, String url) {
-				if (url.endsWith("/nav_login")) submitForm();
-				else if (url.endsWith("/LoginAction.action")) {
-					checkIps();
-				} else if (url.endsWith("/nav_offLine")) {
-                    Log.v("AndroidWifiHelper", "Try to abstract online IPs.");
-					myWebView.loadUrl("javascript:window.HTML_OUT.processHTML(" +
-							"'<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'" +
-							")");
-				}
-			}
-		});
-//		myWebView.setWebChromeClient(new WebChromeClient(){
-//
+//		myWebView.setWebViewClient(new WebViewClient() {
 //			@Override
-//			public void onProgressChanged(WebView view, int newProgress) {
-//				if(newProgress<100) return;
-//				Log.v("AndroidWifiHelper", "Loading: " + newProgress);
-//				String url = view.getUrl();
-//				
+//			public void onPageFinished(WebView view, String url) {
 //				if (url.endsWith("/nav_login")) submitForm();
 //				else if (url.endsWith("/LoginAction.action")) {
 //					checkIps();
@@ -63,24 +44,36 @@ public class AndroidWifiHelper {
 //							")");
 //				}
 //			}
-//
-//			@Override
-//			public boolean onJsAlert(WebView view, String url, String message,
-//					JsResult result) {
-//				Log.i("AndroidWifiHelper", message);
-//				if(processor!=null)
-//					processor.processForceOfflineResponse(message);
-//				return super.onJsAlert(view, url, message, result);
-//			}
-//
-//			@Override
-//			public boolean onJsConfirm(WebView view, String url,
-//					String message, JsResult result) {
-//				Log.i("AndroidWifiHelper", "onJsConfirm: " + message);
-//				return super.onJsConfirm(view, url, message, result);
-//			}
-//			
 //		});
+		myWebView.setWebChromeClient(new WebChromeClient(){
+
+			@Override
+			public void onProgressChanged(WebView view, int newProgress) {
+				if(newProgress<100) return;
+				Log.v("AndroidWifiHelper", "Loading: " + newProgress);
+				String url = view.getUrl();
+				
+				if (url.endsWith("/nav_login")) submitForm();
+				else if (url.endsWith("/LoginAction.action")) {
+					checkIps();
+				} else if (url.endsWith("/nav_offLine")) {
+                    Log.v("AndroidWifiHelper", "Try to abstract online IPs.");
+					myWebView.loadUrl("javascript:window.HTML_OUT.processHTML(" +
+							"'<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'" +
+							")");
+				}
+			}
+
+			@Override
+			public boolean onJsAlert(WebView view, String url, String message,
+					JsResult result) {
+				Log.i("AndroidWifiHelper", message);
+				if(processor!=null)
+					processor.processForceOfflineResponse(message);
+				return false;//super.onJsAlert(view, url, message, result);
+			}
+			
+		});
 	}
 
 	@JavascriptInterface
