@@ -22,7 +22,7 @@ public class AndroidWifiHelper {
 	private String account;
 	private String password;
 	private WifiHelperInterface processor;
-	private int taskid;
+	private int taskid = -1;
 	
 	public AndroidWifiHelper(Activity activity){
 		myWebView = new WebView(activity);
@@ -83,6 +83,7 @@ public class AndroidWifiHelper {
 
 	@JavascriptInterface
 	public void processHTML(String html){
+		taskid = -1;
 		String IP_ADDRESS_PATTERN =
 		        "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
 		Pattern pattern = Pattern.compile(IP_ADDRESS_PATTERN);
@@ -110,6 +111,7 @@ public class AndroidWifiHelper {
 	
 	public void checkIps(){
         Log.v("AndroidWifiHelper", "Try to load online-IPs page.");
+        taskid = 2;
 		myWebView.loadUrl("http://gwself.bupt.edu.cn/nav_offLine");
 	}
 
