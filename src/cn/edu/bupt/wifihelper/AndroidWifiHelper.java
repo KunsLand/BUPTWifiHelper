@@ -6,15 +6,14 @@ import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
+import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 @SuppressLint({ "JavascriptInterface", "SetJavaScriptEnabled" })
 public class AndroidWifiHelper {
@@ -27,31 +26,19 @@ public class AndroidWifiHelper {
 		myWebView = new WebView(activity);
 		WebSettings webSettings = myWebView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
-//		webSettings.setBlockNetworkImage(true);
+		webSettings.setBlockNetworkImage(true);
 //		webSettings.setBlockNetworkLoads(true);
 		webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
 		myWebView.addJavascriptInterface(this, "HTML_OUT");
 		myWebView.setVisibility(View.INVISIBLE);
-//		myWebView.setWebViewClient(new WebViewClient() {
-//			@Override
-//			public void onPageFinished(WebView view, String url) {
-//				if (url.endsWith("/nav_login")) submitForm();
-//				else if (url.endsWith("/LoginAction.action")) {
-//					checkIps();
-//				} else if (url.endsWith("/nav_offLine")) {
-//                    Log.v("AndroidWifiHelper", "Try to abstract online IPs.");
-//					myWebView.loadUrl("javascript:window.HTML_OUT.processHTML(" +
-//							"'<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'" +
-//							")");
-//				}
-//			}
-//		});
 		myWebView.setWebChromeClient(new WebChromeClient(){
 
 			@Override
 			public void onProgressChanged(WebView view, int newProgress) {
+				if(processor!=null)
+					processor.processPageLoadingProgress(newProgress);
 				if(newProgress<100) return;
-				Log.v("AndroidWifiHelper", "Loading: " + newProgress);
+				Log.v("AndroidWifiHelper", "Load complete: " + view.getUrl());
 				String url = view.getUrl();
 				
 				if (url.endsWith("/nav_login")) submitForm();
@@ -68,13 +55,15 @@ public class AndroidWifiHelper {
 			@Override
 			public boolean onJsAlert(WebView view, String url, String message,
 					JsResult result) {
-				Log.i("AndroidWifiHelper", message);
-//				new AlertDialog.Builder(view.getContext())
-//				.setMessage(message)
-//				.setPositiveButton("OK", null)
-//				.show();
+				Log.i("AndroidWifiHelper", "JsAlert: " + message);
 				if(processor!=null)
 					processor.processForceOfflineResponse(message);
+				return true;
+			}
+
+			@Override
+			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+				Log.v("AndroidWifiHelper", "JavaScript Console: " + consoleMessage.message());
 				return true;
 			}
 			
@@ -90,8 +79,9 @@ public class AndroidWifiHelper {
         ArrayList<String> ipList = new ArrayList<String>();
 		while(matcher.find()) ipList.add(matcher.group());
         Log.i("AndroidWifiHelper", "Online IPs: " + ipList.toString());
-        if(processor != null)
+        if(processor != null){
 		    processor.processIpInUse(ipList);
+        }
 	}
 	
 	public void setProcessor(WifiHelperInterface processor){

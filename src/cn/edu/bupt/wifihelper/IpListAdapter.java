@@ -3,7 +3,6 @@ package cn.edu.bupt.wifihelper;
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -73,6 +72,10 @@ public class IpListAdapter extends ArrayAdapter<String>
 		});
 		return convertView;
 	}
+	
+	static class ViewHolder{
+		TextView textView;
+	}
 
 	@Override
 	public void processIpInUse(ArrayList<String> ipList) {
@@ -94,10 +97,19 @@ public class IpListAdapter extends ArrayAdapter<String>
 				IpListAdapter.this.notifyDataSetChanged();
 			}});
 	}
-	
-	
-	static class ViewHolder{
-		TextView textView;
+
+	@Override
+	public void processIpListEmpty() {
+	}
+
+	@Override
+	public void processPageLoadingProgress(int newProgress) {
+	}
+
+	@Override
+	public void processLoginGWFailed() {
+		// TODO Auto-generated method stub
+		
 	}
 
 
