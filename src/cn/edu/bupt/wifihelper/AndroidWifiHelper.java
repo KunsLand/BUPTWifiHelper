@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.webkit.JavascriptInterface;
@@ -26,7 +27,7 @@ public class AndroidWifiHelper {
 		myWebView = new WebView(activity);
 		WebSettings webSettings = myWebView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
-		webSettings.setBlockNetworkImage(true);
+//		webSettings.setBlockNetworkImage(true);
 //		webSettings.setBlockNetworkLoads(true);
 		webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
 		myWebView.addJavascriptInterface(this, "HTML_OUT");
@@ -68,9 +69,13 @@ public class AndroidWifiHelper {
 			public boolean onJsAlert(WebView view, String url, String message,
 					JsResult result) {
 				Log.i("AndroidWifiHelper", message);
+//				new AlertDialog.Builder(view.getContext())
+//				.setMessage(message)
+//				.setPositiveButton("OK", null)
+//				.show();
 				if(processor!=null)
 					processor.processForceOfflineResponse(message);
-				return false;//super.onJsAlert(view, url, message, result);
+				return true;
 			}
 			
 		});

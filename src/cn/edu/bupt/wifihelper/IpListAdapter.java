@@ -88,9 +88,6 @@ public class IpListAdapter extends ArrayAdapter<String>
 	
 	@Override
 	public void processForceOfflineResponse(String message) {
-		new AlertDialog.Builder(context)
-			.setPositiveButton(message, null)
-			.show();
 		context.runOnUiThread(new Runnable(){
 			@Override
 			public void run() {
