@@ -3,6 +3,9 @@ BUPTWifiHelper
 This is a dirty but practical solution to programmly login and manipulate the __WIFI GATEWAY__ in BUPT campus.
 It provides a more effective way for users to manage their devices online and offline.
 
+# Update
+* 2014-12-26: This project is __ABANDONED__ by the developer. The core function has been re-implemented in the new project [GWSelf](https://github.com/KunsLand/GWSelf) which provides a more elegant API.
+
 # API
 The core API is provided in AndroidWifiHelper and the coresponding interfaces are defined in WifiHelperInterface.
 * `setProcessor`, set the handler which holds the AndroidWifiHelper instance.
